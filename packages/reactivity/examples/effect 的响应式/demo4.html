@@ -11,17 +11,23 @@
   //   ref,
   //   effect
   // } from '../../../node_modules/vue/dist/vue.esm-browser.prod.js'
-  import { ref,effect } from '../dist/reactivity.esm.js'
+  import { ref,effect } from '../../dist/reactivity.esm.js'
 
   const count = ref(0)
 
-  effect(() =>{
-    console.log(count.value)
+  // scheduler
+  const render = effect(() =>{
+    console.log('outer:::',count.value)
+    return 1
+  }, {
+    scheduler(){
+      const newV = render()
+      console.log('newV',newV)
+    }
   })
 
-  effect(() =>{
-    console.log(count.value)
-  })
+
+  console.dir(render)
 
   setTimeout(() => {
     count.value = 2
