@@ -15,10 +15,30 @@ export class ReactiveEffect {
       activeSub = prevSub
     }
   }
+
+  /**
+   * 默认调用run，如果传递了 scheduler 则使用传递的
+   * 也就是 原型方法和实例方法的优先级
+   */
+  scheduler() {
+    this.run()
+  }
+
+  /**
+   * 如果依赖发生变化，通知更新
+   */
+  notify() {
+    this.scheduler()
+  }
 }
 
-export function effect(fn) {
+export function effect(fn, options) {
   const e = new ReactiveEffect(fn)
 
+  Object.assign(e, options)
   e.run()
+
+  const runner = e.run()
+  runner.effect = e
+  return runner
 }
