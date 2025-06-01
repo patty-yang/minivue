@@ -38,7 +38,7 @@ export function effect(fn, options) {
   Object.assign(e, options)
   e.run()
 
-  const runner = e.run()
+  const runner = () => e.run()
   runner.effect = e
   return runner
 }
