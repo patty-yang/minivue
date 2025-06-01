@@ -1,5 +1,7 @@
+import { ReactiveEffect } from './effect'
+
 export interface Link {
-  sub: Function // 保存的effect
+  sub: ReactiveEffect // 保存的effect
   nextSub: Link | undefined // 下一个节点
   prevSub: Link | undefined // 上一个节点
 }
@@ -46,5 +48,5 @@ export function propagate(subs: Link) {
     queuedEffect.push(link.sub)
     link = link.nextSub
   }
-  queuedEffect.forEach(effect => effect())
+  queuedEffect.forEach(effect => effect.run())
 }
