@@ -6,5 +6,24 @@
 </head>
 <body>
 
+<button id="btn">button</button>
+<script type="module">
+  // import {
+  //   ref,
+  //   effect
+  // } from '../../../node_modules/vue/dist/vue.esm-browser.prod.js'
+  import { ref, effect } from '../dist/reactivity.esm.js'
+
+  // issue1 会触发多次
+  const flag = ref(true)
+  effect(() => {
+    flag.value
+    console.count('effect')
+  })
+
+  btn.onclick = function() {
+    flag.value = !flag.value
+  }
+</script>
 </body>
 </html>
