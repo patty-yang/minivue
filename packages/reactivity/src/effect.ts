@@ -1,6 +1,13 @@
+import { type Link } from './system'
+
 export let activeSub // 保存当前正在执行的 effect
 
 export class ReactiveEffect {
+  // 依赖项列表的头节点
+  deps: Link | undefined
+  // 依赖项列表的尾节点
+  depsTail: Link | undefined
+
   constructor(public fn) {}
 
   run() {
@@ -8,6 +15,8 @@ export class ReactiveEffect {
 
     // 每次执行 fn 之前，将 this 放到 activeSub 上
     activeSub = this
+    // 标记为 undefined 表示被 deo 触发了重新执行，并尝试复用 link 节点
+    this.depsTail = undefined
     try {
       return this.fn()
     } finally {
