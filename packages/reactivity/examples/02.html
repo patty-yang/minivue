@@ -16,13 +16,18 @@
 
   // issue1 会触发多次
   const flag = ref(true)
+
+  const count = ref(0)
+
   effect(() => {
     flag.value
+    count.value
     console.count('effect')
   })
 
   btn.onclick = function() {
-    flag.value = !flag.value
+    // flag.value = !flag.value
+    count.value++
   }
 </script>
 </body>

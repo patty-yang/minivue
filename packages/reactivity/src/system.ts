@@ -1,7 +1,24 @@
-import { ReactiveEffect } from './effect'
+/**
+ * 依赖项链表
+ */
+interface Sub {
+  deps: Link | undefined
+  // 依赖项列表的尾节点
+  depsTail: Link | undefined
+}
+
+/**
+ * 订阅者链表
+ */
+interface Dep {
+  subs: Link | undefined
+  depsTail: Link | undefined
+}
 
 export interface Link {
-  sub: ReactiveEffect // 保存的effect
+  sub: Sub // 保存的effect
+  dep: Dep // 节点的依赖项
+  nextDep: Link | undefined // 下一个依赖项节点
   nextSub: Link | undefined // 下一个节点
   prevSub: Link | undefined // 上一个节点
 }
@@ -14,16 +31,33 @@ export interface Link {
 export function link(dep, sub) {
   // 如果 dep 和 sub 创建过关联关系，那么就复用一下 不创建关联关系
 
-  const curDep = sub.depsTail
+  const currentDep = sub.depsTail
   /**
    * 节点复用的两种情况
-   * sub.depsTail 没有，并且 sub.deps 有，表示要复用头节点
+   * 1. sub.depsTail 没有，并且 sub.deps 有，表示要复用头节点
+   * 2. 如果尾节点有 nextDep，这种情况下要尝试复用尾节点的 nextDep
    */
 
-  debugger
-  if (curDep === undefined && sub.deps) {
-    // 尾节点有，头节点有
-    if (sub.deps.dep === dep) return
+  // if (currentDep === undefined && sub.deps) {
+  //   // 尾节点有，头节点有
+  //   if (sub.deps.dep === dep) {
+  //     // 移动尾指针，指向刚刚复用的链表节点
+  //     sub.depsTail = sub.deps
+  //     return
+  //   }
+  // } else if (currentDep) {
+  //   if (currentDep.nextDep?.dep === dep) {
+  //     sub.depsTail = currentDep.nextDep
+  //     // 如果尾节点存在，并且尾节点还存在 nextDep 就尝试复用尾节点的 nextDep
+  //     return
+  //   }
+  // }
+  // 优化后 ->
+  const nextDep = currentDep === undefined ? sub.deps : currentDep.nextDep
+  if (nextDep && nextDep.dep === dep) {
+    // 如果 nextDep.dep 等于我当前要收集的 dep
+    sub.depsTail = nextDep
+    return
   }
   const newLink = {
     sub,
