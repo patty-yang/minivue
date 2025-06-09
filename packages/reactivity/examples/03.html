@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+</head>
+<style>
+    body {
+        padding: 50px;
+    }
+</style>
+<body>
+
+<div id="app"></div>
+<button id="flagBtn">update flag</button>
+<button id="nameBtn">update name</button>
+<button id="ageBtn">update age</button>
+<script type="module">
+  // import {
+  //   ref,
+  //   effect
+  // } from '../../../node_modules/vue/dist/vue.esm-browser.prod.js'
+  import { ref, effect } from '../dist/reactivity.esm.js'
+
+  const flag = ref(true)
+  const name = ref('张三')
+  const age = ref(18)
+
+  let count = 0
+  const e = effect(() => {
+    console.count('effect')
+    // if(count>1) return
+    // count++
+    if (flag.value) {
+      app.innerHTML = name.value
+    } else {
+      app.innerHTML = age.value
+    }
+  })
+
+  flagBtn.onclick = function() {
+    flag.value = !flag.value
+    console.dir(e)
+  }
+
+  nameBtn.onclick = function() {
+    name.value = name.value + 1
+    // console.dir(name)
+  }
+
+  ageBtn.onclick = function() {
+    age.value++
+  }
+</script>
+</body>
+</html>

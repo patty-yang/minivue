@@ -12,7 +12,7 @@ interface Sub {
  */
 interface Dep {
   subs: Link | undefined
-  depsTail: Link | undefined
+  subsTail: Link | undefined
 }
 
 export interface Link {
@@ -62,7 +62,7 @@ export function link(dep, sub) {
   const newLink = {
     sub,
     dep,
-    nextDep: undefined,
+    nextDep,
     nextSub: undefined,
     prevSub: undefined
   }
