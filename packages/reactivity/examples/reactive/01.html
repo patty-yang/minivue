@@ -4,7 +4,31 @@
   <meta charset="UTF-8">
   <title>Title</title>
 </head>
+<style>
+    body {
+        padding: 50px;
+    }
+</style>
 <body>
 
+<script type="module">
+  // import {
+  //   reactive,
+  //   effect
+  // } from '../../../../node_modules/vue/dist/vue.esm-browser.prod.js'
+  import { reactive, effect } from '../../dist/reactivity.esm.js'
+
+
+  const state = reactive({ a: 0 })
+
+  effect(() => {
+    console.log(state.a)
+  })
+
+  setTimeout(() => {
+    state.a = 1
+  }, 1000)
+
+</script>
 </body>
 </html>
