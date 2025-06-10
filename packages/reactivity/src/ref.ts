@@ -12,7 +12,7 @@ class RefImpl {
   _value; // 保存实际的值
   [ReactiveFlags.IS_REF] = true // ref 标记，是否是一个 ref
   subs: Link // 订阅者链表的头节点
-  subTail: Link // 订阅者链表的尾节点
+  subsTail: Link // 订阅者链表的尾节点
   constructor(value) {
     this._value = value
   }

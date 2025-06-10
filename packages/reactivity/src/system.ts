@@ -72,18 +72,18 @@ export function link(dep, sub) {
    * 1. 如果存在尾节点，就往尾节点后面加
    * 2. 如果不存在尾节点表示第一次关联，就往头节点加，头尾相同
    */
-  if (dep.subTail) {
+  if (dep.subsTail) {
     /**
      * 1. 将尾节点的下一个指向新节点
      * 2. 将新节点的上一个指向尾节点
      * 3. 将尾节点指向新节点
      */
-    dep.subTail.nextSub = newLink
-    newLink.prevSub = dep.subTail
-    dep.subTail = newLink
+    dep.subsTail.nextSub = newLink
+    newLink.prevSub = dep.subsTail
+    dep.subsTail = newLink
   } else {
     dep.subs = newLink
-    dep.subTail = newLink
+    dep.subsTail = newLink
   }
   //endregion
 

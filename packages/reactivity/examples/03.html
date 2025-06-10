@@ -23,7 +23,7 @@
   import { ref, effect } from '../dist/reactivity.esm.js'
 
   const flag = ref(true)
-  const name = ref('张三')
+  const name = ref('name')
   const age = ref(18)
 
   let count = 0
@@ -40,7 +40,7 @@
 
   flagBtn.onclick = function() {
     flag.value = !flag.value
-    console.dir(e)
+    // console.dir(e)
   }
 
   nameBtn.onclick = function() {
