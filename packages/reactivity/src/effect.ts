@@ -6,6 +6,7 @@ export class ReactiveEffect {
   // 依赖项列表的尾节点
   depsTail: Link | undefined
 
+  tracking = false
   constructor(public fn) {}
 
   run() {

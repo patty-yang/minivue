@@ -121,11 +121,16 @@ export function link(dep, sub) {
  * 传播更新的函数
  * @param subs
  */
-export function propagate(subs: Link) {
+export function propagate(subs) {
   let link = subs
   let queuedEffect = []
   while (link) {
-    queuedEffect.push(link.sub)
+    const sub = link.sub
+
+    if (!sub.tracking) {
+      queuedEffect.push(link.sub)
+    }
+
     link = link.nextSub
   }
   queuedEffect.forEach(effect => effect.notify())
@@ -137,6 +142,7 @@ export function propagate(subs: Link) {
  */
 export function startTrack(sub) {
   // 标记为 undefined 表示被 dep 触发了重新执行，并尝试复用 link 节点
+  sub.tracking = true
   sub.depsTail = undefined
 }
 
@@ -145,6 +151,7 @@ export function startTrack(sub) {
  * @param sub
  */
 export function endTrack(sub) {
+  sub.tracking = false
   const depsTail = sub.depsTail
   /**
    * depsTail 有，并且 depsTail 还有 nextDep，应该给它的依赖关系清理掉
