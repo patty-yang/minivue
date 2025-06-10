@@ -111,3 +111,72 @@ export function propagate(subs: Link) {
   }
   queuedEffect.forEach(effect => effect.notify())
 }
+
+/**
+ * 依赖追踪开始 将尾节点设置成 undefined
+ * @param sub
+ */
+export function startTrack(sub) {
+  // 标记为 undefined 表示被 dep 触发了重新执行，并尝试复用 link 节点
+  sub.depsTail = undefined
+}
+
+/**
+ * 结束追踪，找到要清理的依赖，断开关联关系
+ * @param sub
+ */
+export function endTrack(sub) {
+  const depsTail = sub.depsTail
+  /**
+   * depsTail 有，并且 depsTail 还有 nextDep，应该给它的依赖关系清理掉
+   * depsTail 没有，并且有头节点，那就把所有的都清理掉
+   */
+  if (depsTail) {
+    if (depsTail.nextDep) {
+      clearTracking(depsTail.nextDep)
+      depsTail.nextDep = undefined
+    }
+  } else if (sub.deps) {
+    clearTracking(sub.deps)
+    sub.deps = undefined
+  }
+}
+
+/**
+ * 清理依赖关系
+ * @param link
+ */
+function clearTracking(link: Link) {
+  while (link) {
+    const { prevSub, nextSub, nextDep, dep } = link
+
+    /**
+     * 如果 prevSub 有，那么就把 prevSub 的下一节点指向当前节点的下一个
+     * 如果没有的话 那么就是头节点，就把 dep.subs 指向当前节点的下一个
+     */
+
+    if (prevSub) {
+      prevSub.nextSub = nextSub
+      link.nextSub = undefined
+    } else {
+      dep.subs = nextSub
+    }
+
+    /**
+     * 如果下一个有，那就把 nextSub 的上一个节点，指向当前节点的上一个节点
+     *  如果没有的话 那么就是尾节点，就把 dep.depsTail 指向当前节点的上一个
+     */
+    if (nextSub) {
+      nextSub.prevSub = prevSub
+      link.prevSub = undefined
+    } else {
+      dep.subsTail = prevSub
+    }
+
+    link.dep = link.sub = undefined
+
+    link.nextDep = undefined
+
+    link = nextDep
+  }
+}
