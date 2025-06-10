@@ -23,6 +23,8 @@ export interface Link {
   prevSub: Link | undefined // 上一个节点
 }
 
+let linkPool: Link
+
 /**
  * 建立链表关系
  * @param dep
@@ -59,13 +61,30 @@ export function link(dep, sub) {
     sub.depsTail = nextDep
     return
   }
-  const newLink = {
-    sub,
-    dep,
-    nextDep,
-    nextSub: undefined,
-    prevSub: undefined
+
+  //region Description 清理掉的节点和新创建的节点 保持复用
+  let newLink: Link | undefined
+
+  /**
+   * linkPoll 表示是否被清理的节点，留着复用
+   */
+  if (linkPool) {
+    newLink = linkPool
+    linkPool = linkPool.nextDep
+    newLink.nextDep = nextDep
+    newLink.dep = dep
+    newLink.sub = sub
+  } else {
+    newLink = {
+      sub,
+      dep,
+      nextDep,
+      nextSub: undefined,
+      prevSub: undefined
+    }
   }
+  //endregion
+
   //region Desc: 将列表节点和 dep 建立关联关系
   /**
    * 链表关系关联
@@ -175,7 +194,11 @@ function clearTracking(link: Link) {
 
     link.dep = link.sub = undefined
 
-    link.nextDep = undefined
+    /**
+     * 将不要的节点给 linkPoll 保持复用
+     */
+    link.nextDep = linkPool
+    linkPool = link
 
     link = nextDep
   }
