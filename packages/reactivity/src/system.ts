@@ -10,14 +10,14 @@ interface Sub {
 /**
  * 订阅者链表
  */
-interface Dep {
+interface Dependency {
   subs: Link | undefined
   subsTail: Link | undefined
 }
 
 export interface Link {
   sub: Sub // 保存的effect
-  dep: Dep // 节点的依赖项
+  dep: Dependency // 节点的依赖项
   nextDep: Link | undefined // 下一个依赖项节点
   nextSub: Link | undefined // 下一个节点
   prevSub: Link | undefined // 上一个节点
