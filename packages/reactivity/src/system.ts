@@ -1,7 +1,7 @@
 /**
  * 依赖项链表
  */
-interface Sub {
+export interface Sub {
   deps: Link | undefined
   // 依赖项列表的尾节点
   depsTail: Link | undefined
@@ -10,9 +10,11 @@ interface Sub {
 /**
  * 订阅者链表
  */
-interface Dependency {
+export interface Dependency {
   subs: Link | undefined
   subsTail: Link | undefined
+
+  tracking: boolean
 }
 
 export interface Link {
