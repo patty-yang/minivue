@@ -24,16 +24,22 @@
   count.name = 'count'
   const c = computed(() => {
     console.count('computed')
-    return count.value + 1
+    return count.value * 0
   })
 
   effect(() => {
     console.log(c.value)
   })
+  //
+  // setTimeout(() => {
+  //   count.value = 1
+  // }, 1000)
 
-  setTimeout(() => {
-    count.value = 1
-  }, 1000)
+  count.value = 1
+
+  // setTimeout(() => {
+  //   console.log('c.value ==> ', c.value)
+  // }, 1000)
 </script>
 </body>
 </html>
