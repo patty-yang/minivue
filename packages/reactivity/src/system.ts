@@ -140,9 +140,9 @@ export function propagate(subs) {
   while (link) {
     const sub = link.sub
 
-    if (!sub.tracking) {
+    if (!sub.tracking && !sub.dirty) {
+      sub.dirty = true // 将计算属性标记为脏了
       if ('update' in sub) {
-        sub.dirty = true // 将计算属性标记为脏了
         processComputedUpdate(sub)
       } else {
         queuedEffect.push(link.sub)
@@ -171,6 +171,9 @@ export function startTrack(sub) {
 export function endTrack(sub) {
   sub.tracking = false
   const depsTail = sub.depsTail
+
+  // 追踪完了就不脏了
+  sub.dirty = false
   /**
    * depsTail 有，并且 depsTail 还有 nextDep，应该给它的依赖关系清理掉
    * depsTail 没有，并且有头节点，那就把所有的都清理掉

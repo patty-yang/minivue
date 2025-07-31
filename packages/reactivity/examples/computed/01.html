@@ -22,24 +22,29 @@
   const count = ref(0)
 
   count.name = 'count'
-  const c = computed(() => {
-    console.count('computed')
-    return count.value * 0
-  })
+  // const c = computed(() => {
+  //   console.count('computed')
+  //   return count.value * 0
+  // })
 
   effect(() => {
-    console.log(c.value)
+    console.count('effect')
+    count.value
   })
-  //
+
+
+  console.log('count ==> ', count)
+
   // setTimeout(() => {
   //   count.value = 1
   // }, 1000)
 
-  count.value = 1
-
-  // setTimeout(() => {
-  //   console.log('c.value ==> ', c.value)
-  // }, 1000)
+  // count.value = 1
+  //
+  setTimeout(() => {
+    debugger
+    count.value = 1
+  }, 1000)
 </script>
 </body>
 </html>

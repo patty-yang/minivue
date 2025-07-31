@@ -66,8 +66,6 @@ class ComputedRefImpl implements Dependency, Sub {
     try {
       const oldValue = this._value
       this._value = this.fn()
-      // computed 已经更新完了
-      this.dirty = false
       return hasChanged(this._value, oldValue)
     } finally {
       endTrack(this)
