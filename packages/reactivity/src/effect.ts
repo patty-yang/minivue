@@ -2,18 +2,24 @@ import { endTrack, type Link, startTrack } from './system'
 
 export let activeSub // 保存当前正在执行的 effect
 
+export function setActiveSub(sub) {
+  // 设置当前正在执行的 effect
+  activeSub = sub
+}
 export class ReactiveEffect {
   // 依赖项列表的尾节点
   depsTail: Link | undefined
 
   tracking = false
+
   constructor(public fn) {}
 
   run() {
     const prevSub = activeSub // 将当前的 effect 嵌套起来，用来处理嵌套的逻辑
 
     // 每次执行 fn 之前，将 this 放到 activeSub 上
-    activeSub = this
+    // activeSub = this
+    setActiveSub(this)
     startTrack(this)
 
     try {
@@ -21,7 +27,8 @@ export class ReactiveEffect {
     } finally {
       endTrack(this)
       // 恢复为之前的 activeSub
-      activeSub = prevSub
+      // activeSub = prevSub
+      setActiveSub(prevSub)
     }
   }
 

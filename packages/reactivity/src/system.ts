@@ -119,6 +119,16 @@ export function link(dep, sub) {
   //endregion
 }
 
+function processComputedUpdate(sub) {
+  /**
+   * 更新计算属性
+   * 1. 调用 update
+   * 2. 通知 subs 链表上所有的 sub 重新执行
+   */
+  sub.update()
+  propagate(sub.subs)
+}
+
 /**
  * 传播更新的函数
  * @param subs
@@ -130,7 +140,11 @@ export function propagate(subs) {
     const sub = link.sub
 
     if (!sub.tracking) {
-      queuedEffect.push(link.sub)
+      if ('update' in sub) {
+        processComputedUpdate(sub)
+      } else {
+        queuedEffect.push(link.sub)
+      }
     }
 
     link = link.nextSub
