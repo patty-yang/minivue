@@ -1,4 +1,4 @@
-import { endTrack, type Link, startTrack } from './system'
+import { endTrack, type Link, startTrack, Sub } from './system'
 
 export let activeSub // 保存当前正在执行的 effect
 
@@ -6,7 +6,12 @@ export function setActiveSub(sub) {
   // 设置当前正在执行的 effect
   activeSub = sub
 }
-export class ReactiveEffect {
+
+export class ReactiveEffect implements Sub {
+  // 表示这个 effect 是否激活
+  active = true
+
+  deps: Link | undefined
   // 依赖项列表的尾节点
   depsTail: Link | undefined
 
@@ -15,6 +20,9 @@ export class ReactiveEffect {
   constructor(public fn) {}
 
   run() {
+    if (!this.active) {
+      return this.fn()
+    }
     const prevSub = activeSub // 将当前的 effect 嵌套起来，用来处理嵌套的逻辑
 
     // 每次执行 fn 之前，将 this 放到 activeSub 上
@@ -45,6 +53,16 @@ export class ReactiveEffect {
    */
   notify() {
     this.scheduler()
+  }
+
+  stop() {
+    if (this.active) {
+      // 清理依赖
+      startTrack(this)
+      endTrack(this)
+
+      this.active = false
+    }
   }
 }
 

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+</head>
+<style>
+    body {
+        padding: 50px;
+    }
+</style>
+<body>
+
+<script type="module">
+  // import {
+  //   ref,
+  //   effect,
+  //   watch
+  // } from '../../../../node_modules/vue/dist/vue.esm-browser.prod.js'
+  import { ref, watch } from '../../dist/reactivity.esm.js'
+
+
+  const count = ref(0)
+
+  const state = ref({
+    data: {
+      a: 1
+    }
+  })
+
+
+  state.value.c = state.value
+  const stop = watch(state, (newV, oldV) => {
+    console.log(newV, oldV)
+  }, {
+    deep: true
+  })
+
+  // setTimeout(() => {
+  //   count.value = 1
+  //   setTimeout(() => {
+  //     stop()
+  //     count.value = 2
+  //   }, 1000)
+  //
+  // }, 1000)
+
+  setTimeout(() => {
+    state.value.data.a = 3
+  }, 1000)
+</script>
+</body>
+</html>
