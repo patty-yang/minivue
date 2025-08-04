@@ -3,8 +3,10 @@ import { isRef } from './ref'
 import { hasChanged, isObject } from '@vue/shared'
 import { reactive } from './reactive'
 
-export const mutableHandlers = {
-  get(target, key, receiver) {
+// ==================== 导出对象 ====================
+
+export const mutableHandlers: ProxyHandler<object> = {
+  get(target: object, key: string | symbol, receiver: object): any {
     /**
      *  将 target 中的 key 和 sub 绑定关系
      */
@@ -25,7 +27,7 @@ export const mutableHandlers = {
     }
     return res
   },
-  set(target, key, value, receiver) {
+  set(target: object, key: string | symbol, value: any, receiver: object): boolean {
     const oldValue = Reflect.get(target, key)
     const res = Reflect.set(target, key, value, receiver)
 

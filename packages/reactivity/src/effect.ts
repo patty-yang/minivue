@@ -1,11 +1,29 @@
 import { endTrack, type Link, startTrack, Sub } from './system'
 
-export let activeSub // 保存当前正在执行的 effect
+// ==================== 类型定义 ====================
 
-export function setActiveSub(sub) {
+export interface EffectOptions {
+  scheduler?: () => void
+  onStop?: () => void
+}
+
+export interface EffectRunner {
+  (): any
+  effect: ReactiveEffect
+}
+
+// ==================== 全局变量 ====================
+
+export let activeSub: Sub | undefined // 保存当前正在执行的 effect
+
+// ==================== 工具函数 ====================
+
+export function setActiveSub(sub: Sub | undefined): void {
   // 设置当前正在执行的 effect
   activeSub = sub
 }
+
+// ==================== 核心类 ====================
 
 export class ReactiveEffect implements Sub {
   // 表示这个 effect 是否激活
@@ -17,9 +35,9 @@ export class ReactiveEffect implements Sub {
 
   tracking = false
 
-  constructor(public fn) {}
+  constructor(public fn: () => any) {}
 
-  run() {
+  run(): any {
     if (!this.active) {
       return this.fn()
     }
@@ -44,18 +62,18 @@ export class ReactiveEffect implements Sub {
    * 默认调用run，如果传递了 scheduler 则使用传递的
    * 也就是 原型方法和实例方法的优先级
    */
-  scheduler() {
+  scheduler(): void {
     this.run()
   }
 
   /**
    * 如果依赖发生变化，通知更新
    */
-  notify() {
+  notify(): void {
     this.scheduler()
   }
 
-  stop() {
+  stop(): void {
     if (this.active) {
       // 清理依赖
       startTrack(this)
@@ -66,7 +84,9 @@ export class ReactiveEffect implements Sub {
   }
 }
 
-export function effect(fn, options) {
+// ==================== 导出函数 ====================
+
+export function effect(fn: () => any, options?: EffectOptions): EffectRunner {
   const e = new ReactiveEffect(fn)
 
   Object.assign(e, options)

@@ -1,3 +1,5 @@
+// ==================== 类型定义 ====================
+
 /**
  * 依赖项链表
  */
@@ -5,6 +7,11 @@ export interface Sub {
   deps: Link | undefined
   // 依赖项列表的尾节点
   depsTail: Link | undefined
+  tracking?: boolean
+  dirty?: boolean
+  active?: boolean
+  update?: () => boolean
+  notify?: () => void
 }
 
 /**
@@ -13,8 +20,7 @@ export interface Sub {
 export interface Dependency {
   subs: Link | undefined
   subsTail: Link | undefined
-
-  tracking: boolean
+  tracking?: boolean
 }
 
 export interface Link {
@@ -25,14 +31,18 @@ export interface Link {
   prevSub: Link | undefined // 上一个节点
 }
 
-let linkPool: Link
+// ==================== 全局变量 ====================
+
+let linkPool: Link | undefined
+
+// ==================== 核心函数 ====================
 
 /**
  * 建立链表关系
- * @param dep
- * @param sub
+ * @param dep 依赖项
+ * @param sub 订阅者
  */
-export function link(dep, sub) {
+export function link(dep: Dependency, sub: Sub): void {
   // 如果 dep 和 sub 创建过关联关系，那么就复用一下 不创建关联关系
 
   const currentDep = sub.depsTail
@@ -119,46 +129,11 @@ export function link(dep, sub) {
   //endregion
 }
 
-function processComputedUpdate(sub) {
-  /**
-   * 更新计算属性
-   * 1. 调用 update
-   * 2. 通知 subs 链表上所有的 sub 重新执行
-   */
-  if (sub.subs && sub.update()) {
-    propagate(sub.subs)
-  }
-}
-
-/**
- * 传播更新的函数
- * @param subs
- */
-export function propagate(subs) {
-  let link = subs
-  let queuedEffect = []
-  while (link) {
-    const sub = link.sub
-
-    if (!sub.tracking && !sub.dirty) {
-      sub.dirty = true // 将计算属性标记为脏了
-      if ('update' in sub) {
-        processComputedUpdate(sub)
-      } else {
-        queuedEffect.push(link.sub)
-      }
-    }
-
-    link = link.nextSub
-  }
-  queuedEffect.forEach(effect => effect.notify())
-}
-
 /**
  * 依赖追踪开始 将尾节点设置成 undefined
- * @param sub
+ * @param sub 订阅者
  */
-export function startTrack(sub) {
+export function startTrack(sub: Sub): void {
   // 标记为 undefined 表示被 dep 触发了重新执行，并尝试复用 link 节点
   sub.tracking = true
   sub.depsTail = undefined
@@ -166,9 +141,9 @@ export function startTrack(sub) {
 
 /**
  * 结束追踪，找到要清理的依赖，断开关联关系
- * @param sub
+ * @param sub 订阅者
  */
-export function endTrack(sub) {
+export function endTrack(sub: Sub): void {
   sub.tracking = false
   const depsTail = sub.depsTail
 
@@ -189,11 +164,48 @@ export function endTrack(sub) {
   }
 }
 
+// ==================== 辅助函数 ====================
+
+function processComputedUpdate(sub: Sub & Dependency): void {
+  /**
+   * 更新计算属性
+   * 1. 调用 update
+   * 2. 通知 subs 链表上所有的 sub 重新执行
+   */
+  if (sub.subs && sub.update && sub.update()) {
+    propagate(sub.subs)
+  }
+}
+
+/**
+ * 传播更新的函数
+ * @param subs 订阅者链表
+ */
+export function propagate(subs: Link): void {
+  let link: Link | undefined = subs
+  let queuedEffect: Sub[] = []
+  while (link) {
+    const sub = link.sub
+
+    if (!sub.tracking && !sub.dirty) {
+      sub.dirty = true // 将计算属性标记为脏了
+      if ('update' in sub && 'subs' in sub) {
+        processComputedUpdate(sub as Sub & Dependency)
+      } else {
+        queuedEffect.push(link.sub)
+      }
+    }
+
+    link = link.nextSub
+  }
+  queuedEffect.forEach(effect => effect.notify?.())
+}
+
 /**
  * 清理依赖关系
- * @param link
+ * @param link 链表节点
  */
-function clearTracking(link: Link) {
+function clearTracking(link: Link): void {
   while (link) {
     const { prevSub, nextSub, nextDep, dep } = link
 

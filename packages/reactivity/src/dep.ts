@@ -1,6 +1,16 @@
 import { activeSub } from './effect'
 import { Link, link, propagate } from './system'
 
+// ==================== 类型定义 ====================
+
+class Dep {
+  subs: Link // 订阅者链表的头节点
+  subsTail: Link // 订阅者链表的尾节点
+  constructor() {}
+}
+
+// ==================== 全局变量 ====================
+
 /**
  * 绑定 target 的 key 关联的所有的 Dep
  *
@@ -12,9 +22,11 @@ import { Link, link, propagate } from './system'
  *   }
  * }
  */
-const targetMap = new WeakMap()
+const targetMap = new WeakMap<object, Map<string | symbol, Dep>>()
 
-export function track(target, key) {
+// ==================== 导出函数 ====================
+
+export function track(target: object, key: string | symbol): void {
   if (!activeSub) return
 
   /**
@@ -46,17 +58,11 @@ export function track(target, key) {
   link(dep, activeSub)
 }
 
-export function trigger(target, key) {
+export function trigger(target: object, key: string | symbol): void {
   const depsMap = targetMap.get(target)
   if (!depsMap) return //  表示这个对象没有任何属性再 sub 中访问过，没建立上关联关系
   const dep = depsMap.get(key) // dep => Dep
   if (!dep) return // key 没在 sub 中访问过
 
   propagate(dep.subs)
-}
-
-class Dep {
-  subs: Link // 订阅者链表的头节点
-  subsTail: Link // 订阅者链表的尾节点
-  constructor() {}
 }

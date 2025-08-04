@@ -1,15 +1,15 @@
 import { isObject } from '@vue/shared'
 import { mutableHandlers } from './baseHandles'
 
-export function reactive(target) {
-  return createReactiveObject(target)
-}
+// ==================== 全局变量 ====================
 
-const reactiveMap = new WeakMap() // 保存 target 和 响应式对象之间的关联关系
+const reactiveMap = new WeakMap<object, object>() // 保存 target 和 响应式对象之间的关联关系
 
-const reactiveSet = new WeakSet() // 保存所有使用 reactive 创建出来的响应式对象
+const reactiveSet = new WeakSet<object>() // 保存所有使用 reactive 创建出来的响应式对象
 
-function createReactiveObject(target) {
+// ==================== 工具函数 ====================
+
+function createReactiveObject<T extends object>(target: T): T {
   /**
    * reactive 必须是一个对象
    */
@@ -23,7 +23,7 @@ function createReactiveObject(target) {
    *   const state2 = reactive(obj)
    */
   const existingProxy = reactiveMap.get(target)
-  if (existingProxy) return existingProxy
+  if (existingProxy) return existingProxy as T
 
   /**
    *   不能将代理对象接着代理 解决⬇️
@@ -36,9 +36,15 @@ function createReactiveObject(target) {
 
   reactiveMap.set(target, proxy)
   reactiveSet.add(proxy)
-  return proxy
+  return proxy as T
 }
 
-export function isReactive(target) {
+// ==================== 导出函数 ====================
+
+export function reactive<T extends object>(target: T): T {
+  return createReactiveObject(target)
+}
+
+export function isReactive(target: any): target is object {
   return reactiveSet.has(target)
 }

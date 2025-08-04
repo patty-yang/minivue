@@ -1,8 +1,21 @@
 import { ReactiveEffect } from './effect'
-import { isRef } from './ref'
+import { isRef, Ref } from './ref'
 import { isObject } from '@vue/shared'
 
-function traverse(value, seen = new Set()) {
+// ==================== 类型定义 ====================
+
+export interface WatchOptions {
+  immediate?: boolean
+  once?: boolean
+  deep?: boolean
+}
+
+export type WatchSource<T = any> = Ref<T> | (() => T)
+export type WatchCallback<T = any> = (newValue: T, oldValue: T) => void
+
+// ==================== 工具函数 ====================
+
+function traverse(value: any, seen = new Set()): any {
   if (!isObject(value)) return value
 
   if (seen.has(value)) return value
@@ -16,7 +29,13 @@ function traverse(value, seen = new Set()) {
   return value
 }
 
-export function watch(source, cb, options) {
+// ==================== 导出函数 ====================
+
+export function watch<T = any>(
+  source: WatchSource<T>,
+  cb: WatchCallback<T>,
+  options?: WatchOptions
+): () => void {
   const { immediate, once, deep } = options || {}
   if (once) {
     // 如果传递了 once 就保存一份 cb 执行完原回掉之后，停止监听
@@ -27,9 +46,11 @@ export function watch(source, cb, options) {
       stop()
     }
   }
-  let getter
+  let getter: () => T
   if (isRef(source)) {
-    getter = () => source.value
+    getter = () => (source as Ref<T>).value
+  } else {
+    getter = source as () => T
   }
 
   if (deep) {
@@ -37,9 +58,9 @@ export function watch(source, cb, options) {
 
     getter = () => traverse(baseGetter())
   }
-  let oldValue
+  let oldValue: T
 
-  function job() {
+  function job(): void {
     // 执行 effect 的 run 拿到getter 的返回值，不能直接执行 getter 因为要收集依赖
     const newValue = effect.run()
 
@@ -48,7 +69,7 @@ export function watch(source, cb, options) {
     oldValue = newValue
   }
 
-  function stop() {
+  function stop(): void {
     return effect.stop()
   }
 
