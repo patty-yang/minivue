@@ -1,6 +1,7 @@
 import { ReactiveEffect } from './effect'
 import { isRef, Ref } from './ref'
-import { isObject } from '@vue/shared'
+import { isFunction, isObject } from '@vue/shared'
+import { isReactive } from './reactive'
 
 // ==================== 类型定义 ====================
 
@@ -15,15 +16,18 @@ export type WatchCallback<T = any> = (newValue: T, oldValue: T) => void
 
 // ==================== 工具函数 ====================
 
-function traverse(value: any, seen = new Set()): any {
-  if (!isObject(value)) return value
+function traverse(value: any, depth = Infinity, seen = new Set()): any {
+  // 如果不是一个对象或者监听的层级到了 直接返回
+  if (!isObject(value) || depth <= 0) return value
 
+  // 如果之前访问过直接返回 避免循环引入 导致溢出
   if (seen.has(value)) return value
 
+  depth--
   seen.add(value)
 
   for (const key in value) {
-    traverse(value[key], seen)
+    traverse(value[key], depth, seen)
   }
 
   return value
@@ -36,7 +40,7 @@ export function watch<T = any>(
   cb: WatchCallback<T>,
   options?: WatchOptions
 ): () => void {
-  const { immediate, once, deep } = options || {}
+  let { immediate, once, deep } = options || {}
   if (once) {
     // 如果传递了 once 就保存一份 cb 执行完原回掉之后，停止监听
     const _cb = cb
@@ -49,14 +53,26 @@ export function watch<T = any>(
   let getter: () => T
   if (isRef(source)) {
     getter = () => (source as Ref<T>).value
-  } else {
-    getter = source as () => T
+  } else if (isReactive(source)) {
+    /**
+     * 如果值是 reactive 那么默认 deep = true
+     * 如果传了 就使用传递的
+     */
+    getter = () => source as any
+    if (!deep) {
+      deep = true
+    }
+  } else if (isFunction(source)) {
+    /**
+     * 如果 source 是一个函数的话
+     */
+    getter = source
   }
 
   if (deep) {
     const baseGetter = getter
-
-    getter = () => traverse(baseGetter())
+    const depth = deep === true ? Infinity : deep
+    getter = () => traverse(baseGetter(), depth)
   }
   let oldValue: T
 
