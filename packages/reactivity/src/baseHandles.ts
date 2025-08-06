@@ -39,7 +39,6 @@ export const mutableHandlers: ProxyHandler<object> = {
     const targetIsArray = Array.isArray(target)
     const oldLength = targetIsArray ? target.length : 0
     //endregion
-    const res = Reflect.set(target, key, value, receiver)
 
     if (isRef(oldValue) && !isRef(value)) {
       /**
@@ -49,8 +48,11 @@ export const mutableHandlers: ProxyHandler<object> = {
        * a.value = 1
        */
       oldValue.value = value
-      return res
+      return true
     }
+
+    const res = Reflect.set(target, key, value, receiver)
+
     if (hasChanged(oldValue, value)) {
       trigger(target, key)
     }
