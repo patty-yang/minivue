@@ -5,36 +5,48 @@
   <title>Title</title>
 </head>
 <style>
-    body {
-        padding: 50px;
+    #app {
+        width: 200px;
+        height: 200px;
+        background-color: #f00;
+        color: #fff;
+    }
+
+    #div {
+        color: #fff;
+        width: 200px;
+        height: 200px;
+        background-color: #000;
     }
 </style>
 <body>
-
+<div id="app">app</div>
+<div id="div">div</div>
+<button id="btn">按钮</button>
 <script type="module">
   // import {
   //   ref,
   //   effect,
   //   watch
   // } from '../../../../node_modules/vue/dist/vue.esm-browser.prod.js'
-  import { ref, watch } from '../../dist/reactivity.esm.js'
+  import { ref, reactive, watch } from '../../dist/reactivity.esm.js'
 
 
-  const count = ref(0)
-
-  const state = ref({
-    data: {
-      a: 1
-    }
-  })
-
-
-  state.value.c = state.value
-  const stop = watch(state, (newV, oldV) => {
-    console.log(newV, oldV)
-  }, {
-    deep: true
-  })
+  // const state = reactive({
+  //   a: {
+  //     b: 1,
+  //     c: {
+  //       d: 2
+  //     }
+  //   }
+  // })
+  //
+  //
+  // watch(state, (newV, oldV) => {
+  //   console.log(newV, oldV)
+  // }, {
+  //   deep: 3
+  // })
 
   // setTimeout(() => {
   //   count.value = 1
@@ -45,9 +57,44 @@
   //
   // }, 1000)
 
-  setTimeout(() => {
-    state.value.data.a = 3
-  }, 1000)
+  // setTimeout(() => {
+  //   state.a.c.d = 3
+  // }, 100)
+
+
+  /**
+   * 清理操作
+   */
+  const flag = ref(false)
+  watch(flag, (newVal, oldVal, onCleanup) => {
+    const dom = newVal ? app : div
+
+    function handler() {
+      console.log(newVal ? 'app' : 'div', '被点击了')
+    }
+
+    // if (newVal) {
+    //   app.onclick = () => {
+    //     console.log('点击了app ==> ')
+    //   }
+    //
+    // } else {
+    //   div.onclick = () => {
+    //     console.log('点击了div ==> ')
+    //   }
+    // }
+
+    dom.addEventListener('click', handler)
+    onCleanup(() => {
+      dom.removeEventListener('click', handler)
+    })
+  }, {
+    immediate: true
+  })
+
+  btn.onclick = () => {
+    flag.value = !flag.value
+  }
 </script>
 </body>
 </html>
