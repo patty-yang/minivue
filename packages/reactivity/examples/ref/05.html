@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+</head>
+<style></style>
+<body>
+<script type="module">
+  // import {
+  //   effect,
+  //   toRef,
+  //   reactive
+  // } from '../../../../node_modules/vue/dist/vue.esm-browser.js'
+
+  import { reactive, effect, toRef } from '../../dist/reactivity.esm.js'
+
+
+  const state = reactive({
+    name: '张三',
+    age: 18
+  })
+
+  let name = toRef(state, 'name')
+
+
+  console.log('name ==> ', name)
+  effect(() => {
+    console.log('effect', state.name)
+  })
+
+
+  setTimeout(() => {
+    name.value = '李四'
+  }, 1000)
+</script>
+</body>
+</html>
