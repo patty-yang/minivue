@@ -1,3 +1,1 @@
-export function fn(a, b) {
-  return a + b
-}
+export * from '@vue/runtime-dom'

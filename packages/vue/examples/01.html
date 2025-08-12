@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+</head>
+<body>
+<div id="app"></div>
+<script type="module">
+  import { h, createRenderer } from '../../../node_modules/vue/dist/vue.esm-browser.js'
+
+
+  import { renderOptions } from '../dist/vue.esm.js'
+
+  /**
+   * runtime-core 依赖 reactivity
+   *
+   * runtime-dom 依赖 runtime-core
+   *
+   * vue 包导出了 runtime-dom
+   */
+
+  const renderer = createRenderer(renderOptions)
+  const vnode = h('div', {
+    style: { color: 'red' }, onClick: () => {
+      console.log('vnode click')
+    }
+  }, 'Hello World')
+
+  renderer.render(vnode, app)
+
+
+  const vnode2 = h('div', {
+    style: {
+      background: 'green',
+      color: 'pink'
+    },
+    onClick: () => {
+      console.log('update click')
+    }
+  }, 'Hello World')
+
+  /**
+   * 更新操作
+   */
+  setTimeout(() => {
+    renderer.render(vnode2, app)
+  }, 1000)
+  console.log('renderer ==> ', renderer)
+  //
+  // setTimeout(() => {
+  //   renderer.render(null, app)
+  // }, 1000)
+
+  // const vnode = h('div', { id: 'foo' }, 'Hello World')
+  // console.log('vnode ==> ', vnode)
+  //
+  // /**
+  //  * 通过渲染器 将 虚拟节点 转换成 真实节点 渲染到 dom 上
+  //  * vnode => render => dom
+  //  */
+  // render(vnode, app)
+</script>
+</body>
+</html>
