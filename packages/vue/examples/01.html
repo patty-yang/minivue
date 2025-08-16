@@ -22,7 +22,10 @@
 
   const renderer = createRenderer(renderOptions)
   const vnode = h('div', {
-    style: { color: 'red' }, onClick: () => {
+    id: 'aaa',
+    bcd: '123',
+    style: { color: 'red' },
+    onClick: () => {
       console.log('vnode click')
     }
   }, 'Hello World')
@@ -35,6 +38,7 @@
       background: 'green',
       color: 'pink'
     },
+    id: 'bbb',
     onClick: () => {
       console.log('update click')
     }

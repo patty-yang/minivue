@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+</head>
+<style>
+    .container {
+        width: 100px;
+        height: 100px;
+        background-color: red;
+    }
+</style>
+<body>
+<div id="app"></div>
+<script type="module">
+  import { render } from '../../../node_modules/vue/dist/vue.esm-browser.js'
+  import { h } from '../dist/vue.esm.js'
+
+  const vnode = h('div', 'hello world')
+
+  // console.log('vnode ==> ', vnode)
+  render(vnode, app)
+
+</script>
+</body>
+</html>
