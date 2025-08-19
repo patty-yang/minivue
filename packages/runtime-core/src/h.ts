@@ -74,6 +74,10 @@ function createVNode(type, props?, children?) {
     key: props?.key,
     // 虚拟节点 要挂载的元素
     el: null,
+
+    /**
+     * 9: type 是 dom 元素的类型，children 是一个字符串
+     */
     shapeFlag: 9
   }
 
