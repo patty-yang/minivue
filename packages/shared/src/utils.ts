@@ -15,3 +15,7 @@ export function isOn(key) {
 }
 
 export const isArray = Array.isArray
+
+export function isString(value) {
+  return typeof value === 'string'
+}

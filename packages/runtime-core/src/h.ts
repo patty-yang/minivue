@@ -1,4 +1,5 @@
-import { isArray, isObject } from '@vue/shared'
+import { isArray, isObject, ShapeFlags } from '@vue/shared'
+import { createVNode, isVNode } from './vnode'
 
 /**
  * h 函数的使用方法
@@ -10,13 +11,6 @@ import { isArray, isObject } from '@vue/shared'
  *
  * 5. h('div', { class: 'container' }, h('span', 'hello'), h('span', 'world'))
  */
-
-/**
- * 如果是虚拟节点的话 有一个__v_v_isVNode 属性
- */
-function isVNode(value) {
-  return value?.__v_isVNode
-}
 
 export function h(type, propsOrChildren?, children?) {
   /**
@@ -58,28 +52,57 @@ export function h(type, propsOrChildren?, children?) {
   }
 }
 
-/**
- * 创建虚拟节点的底层方法
- * @param type 节点类型
- * @param props 节点属性
- * @param children 子节点
- */
-function createVNode(type, props?, children?) {
-  const vnode = {
-    __v_isVNode: true,
-    type,
-    props,
-    children,
-    // diff
-    key: props?.key,
-    // 虚拟节点 要挂载的元素
-    el: null,
-
-    /**
-     * 9: type 是 dom 元素的类型，children 是一个字符串
-     */
-    shapeFlag: 9
-  }
-
-  return vnode
-}
+// let shapeFlag = 0
+//
+// const vnode = {
+//   __v_isVNode: true,
+//   type: 'div',
+//   children: 'hello world',
+//   shapeFlag
+// }
+//
+// if (typeof vnode.type === 'string') {
+//   // vnode.type 是一个字符串，表示 DOM 元素
+//   shapeFlag |= ShapeFlags.ELEMENT // 1
+// }
+//
+// if (typeof vnode.children === 'string') {
+//   /**
+//    * 或运算 有一个1 就是 1
+//    * 0001
+//    * 1000
+//    * 结果是 1001
+//    */
+//   // shapeFlag = shapeFlag | ShapeFlags.TEXT_CHILDREN // 1001
+//   shapeFlag |= ShapeFlags.ELEMENT
+// }
+// vnode.shapeFlag = shapeFlag
+//
+// if (vnode.shapeFlag & ShapeFlags.ELEMENT) {
+//   /**
+//    * 与运算
+//    * 1001
+//    * 0001
+//    * 结果是 0001
+//    */
+//   console.log('这是一个 DOM 元素的虚拟节点')
+// }
+//
+// if (vnode.shapeFlag & ShapeFlags.TEXT_CHILDREN) {
+//   /**
+//    * 1001
+//    * 1000
+//    * 结果为 1001
+//    */
+//
+//   console.log('子元素是一个纯文本节点')
+// }
+//
+// if (vnode.shapeFlag & ShapeFlags.ARRAY_CHILDREN) {
+//   /**
+//    * 01001
+//    * 10000
+//    * 结果为 00000
+//    */
+//   console.log('子元素是一个数组')
+// }
