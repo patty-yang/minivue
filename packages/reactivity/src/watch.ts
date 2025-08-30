@@ -13,8 +13,8 @@ export interface WatchOptions {
 
 export type WatchSource<T = any> = Ref<T> | object | (() => T)
 export type WatchCallback<T = any> = (
-  newValue: T, 
-  oldValue: T | undefined, 
+  newValue: T,
+  oldValue: T | undefined,
   onCleanup: (cleanupFn: () => void) => void
 ) => void
 
@@ -22,7 +22,11 @@ export type CleanupFunction = () => void
 
 // ==================== 工具函数 ====================
 
-function traverse(value: any, depth: number = Infinity, seen: Set<any> = new Set()): any {
+function traverse(
+  value: any,
+  depth: number = Infinity,
+  seen: Set<any> = new Set()
+): any {
   // 如果不是一个对象或者监听的层级到了 直接返回
   if (!isObject(value) || depth <= 0) return value
 
@@ -47,7 +51,7 @@ export function watch<T = any>(
   options?: WatchOptions
 ): () => void {
   let { immediate, once, deep } = options || {}
-  
+
   if (once) {
     // 如果传递了 once 就保存一份 cb 执行完原回掉之后，停止监听
     const _cb = cb
@@ -57,9 +61,9 @@ export function watch<T = any>(
       stop()
     }
   }
-  
+
   let getter: () => T
-  
+
   if (isRef(source)) {
     getter = () => (source as Ref<T>).value
   } else if (isReactive(source)) {
@@ -86,7 +90,7 @@ export function watch<T = any>(
     const depth = deep === true ? Infinity : deep
     getter = () => traverse(baseGetter(), depth)
   }
-  
+
   let oldValue: T | undefined
 
   let cleanup: CleanupFunction | null = null

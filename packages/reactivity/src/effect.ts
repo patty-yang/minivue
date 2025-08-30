@@ -9,6 +9,7 @@ export interface EffectOptions {
 
 export interface EffectRunner {
   (): any
+
   effect: ReactiveEffect
 }
 
